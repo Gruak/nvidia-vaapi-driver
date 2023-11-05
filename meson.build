@@ -18,12 +18,10 @@ deps = [
     cc.find_library('dl', required : false),
     dependency('egl'),
     dependency('ffnvcodec', version: '>= 11.1.5.1'),
+    dependency('libva', version: '>= 1.8.0').partial_dependency(compile_args: true),
     dependency('libdrm', version: '>=2.4.60').partial_dependency(compile_args: true),
     dependency('threads'),
 ]
-libva_deps = dependency('libva', version: '>= 1.8.0').partial_dependency(compile_args: true)
-deps += [libva_deps]
-
 gst_codecs_deps = dependency('gstreamer-codecparsers-1.0', required: false)
 
 if cc.get_argument_syntax() == 'gcc'
@@ -71,7 +69,6 @@ if gst_codecs_deps.found()
 endif
 
 nvidia_incdir = include_directories('nvidia-include')
-nvidia_install_dir = libva_deps.get_variable(pkgconfig: 'driverdir')
 
 shared_library(
     'nvidia_drv_video',
@@ -80,7 +77,7 @@ shared_library(
     dependencies: deps,
     include_directories: nvidia_incdir,
     install: true,
-    install_dir: nvidia_install_dir,
+    install_dir: get_option('libdir') / 'dri',
     gnu_symbol_visibility: 'hidden',
 )
 
